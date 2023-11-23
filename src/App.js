@@ -7,28 +7,36 @@ function App() {
   const [message, setMessage] = useState('Search for Music')
   const [data, setData] = useState([])
 
-useEffect(() => {
-  const fetchData = async () => {
-    const url = 'https://itunes.apple.com/search?term=black%20sabbath'
-    const response = await fetch(url)
-    const data = await response.json()
-
-      if (data.results) {
-        setData(data.results)
-      } else {
-        setData([])
-        setMessage('Not Found')
+  useEffect(() => {
+    if (search) {
+      const fetchData = async () => {
+        const url = encodeURI(`https://itunes.apple.com/search?term=${search}`)
+        const response = await fetch(url)
+        const data = await response.json()
+        if (data.results.length > 0) {
+          setData(data.results)
+        } else {
+          setData([])
+          setMessage('Not Found')
+        }
       }
-  }
+  
+      fetchData()
+    } else {
+      if (data) setData([])
+    }
+  }, [search])
 
-  fetchData()
-}, [search])
+const handleSearch = (e, term) => {
+  e.preventDefault()
+  setSearch(term)
+}
 
   return (
     <div>
-      <SearchBar />
+      <SearchBar handleSearch={handleSearch} />
       {message}
-      <Gallery />
+      <Gallery data={data} />
     </div>
   );
 }
